@@ -69,6 +69,9 @@
 #include <QShortcut>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QButtonGroup>
+#include <QStackedWidget>
+#include <QStyle>
 #include <QToolButton>
 #include <QWidget>
 #include <QWidgetAction>
@@ -126,6 +129,7 @@
 #include "modplatform/flame/FlameModIndex.h"
 
 #include "KonamiCode.h"
+#include "ui/widgets/HomePage.h"
 
 #include "InstanceCopyTask.h"
 #include "InstanceDirUpdate.h"
@@ -169,15 +173,56 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         changeIconButton->setIcon(QIcon::fromTheme("news"));
         changeIconButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         connect(changeIconButton, &QToolButton::clicked, this, &MainWindow::on_actionChangeInstIcon_triggered);
-        ui->instanceToolBar->insertWidgetBefore(ui->actionLaunchInstance, changeIconButton);
+        ui->instanceToolBar->insertWidgetBefore(ui->actionEditInstance, changeIconButton);
 
         renameButton = new LabeledToolButton(this);
         renameButton->setObjectName(QStringLiteral("renameButton"));
         renameButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         connect(renameButton, &QToolButton::clicked, this, &MainWindow::on_actionRenameInstance_triggered);
-        ui->instanceToolBar->insertWidgetBefore(ui->actionLaunchInstance, renameButton);
+        ui->instanceToolBar->insertWidgetBefore(ui->actionEditInstance, renameButton);
 
-        ui->instanceToolBar->insertSeparator(ui->actionLaunchInstance);
+        ui->instanceToolBar->insertSeparator(ui->actionEditInstance);
+
+        // one big button that launches the instance, or stops it while it is running
+        playButton = new QToolButton(this);
+        playButton->setObjectName(QStringLiteral("playButton"));
+        playButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        playButton->setMinimumHeight(48);
+        playButton->setIconSize(QSize(24, 24));
+        playButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        playButton->setFocusPolicy(Qt::NoFocus);
+        playButton->setStyleSheet(
+            "QToolButton#playButton { background-color: #3c8527; color: white; border: none; border-radius: 6px;"
+            " padding: 6px 12px; font-size: 15px; font-weight: bold; }"
+            "QToolButton#playButton:hover { background-color: #4a9e31; }"
+            "QToolButton#playButton:pressed { background-color: #2f6a1f; }"
+            "QToolButton#playButton[running=\"true\"] { background-color: #b3261e; }"
+            "QToolButton#playButton[running=\"true\"]:hover { background-color: #cc3a31; }"
+            "QToolButton#playButton:disabled { background-color: #7a7a7a; color: #dddddd; }"
+            "QToolButton#playButton::menu-button { border: none; border-left: 1px solid rgba(255, 255, 255, 90); width: 24px; }");
+        connect(playButton, &QToolButton::clicked, this, &MainWindow::launchOrKillSelected);
+        ui->instanceToolBar->insertWidgetBefore(ui->actionEditInstance, playButton);
+
+        ui->instanceToolBar->insertSeparator(ui->actionEditInstance);
+
+        // rarely used instance actions live in a single "More" menu to keep the panel short
+        auto moreMenu = new QMenu(this);
+        moreMenu->addAction(ui->actionChangeInstGroup);
+        moreMenu->addAction(ui->actionExportInstance);
+        moreMenu->addAction(ui->actionCopyInstance);
+        moreMenu->addAction(ui->actionCreateInstanceShortcut);
+        moreMenu->addSeparator();
+        moreMenu->addAction(ui->actionDeleteInstance);
+
+        moreButton = new QToolButton(this);
+        moreButton->setObjectName(QStringLiteral("moreButton"));
+        moreButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        moreButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        moreButton->setProperty("_kde_toolButton_alignment", Qt::AlignLeft);
+        moreButton->setFocusPolicy(Qt::NoFocus);
+        moreButton->setPopupMode(QToolButton::InstantPopup);
+        moreButton->setMenu(moreMenu);
+        ui->instanceToolBar->addWidget(moreButton);
 
         // restore the instance toolbar settings
         auto const setting_name = QString("WideBarVisibility_%1").arg(ui->instanceToolBar->objectName());
@@ -331,7 +376,65 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         view->setSourceOfGroupCollapseStatus(
             [](const QString& groupName) -> bool { return APPLICATION->instances()->isGroupCollapsed(groupName); });
         connect(view, &InstanceView::groupStateChanged, APPLICATION->instances(), &InstanceList::on_GroupStateChanged);
-        ui->horizontalLayout->addWidget(view);
+    }
+
+    // left navigation rail and the pages it switches between (home card / instance grid)
+    {
+        navRail = new QWidget(ui->centralWidget);
+        navRail->setObjectName(QStringLiteral("navRail"));
+        navRail->setAttribute(Qt::WA_StyledBackground);
+        navRail->setFixedWidth(84);
+        navRail->setStyleSheet(
+            "#navRail { background-color: #17151d; border-right: 1px solid #2a2733; }"
+            "#navRail QToolButton { background-color: #221f2b; border: none; border-radius: 16px; }"
+            "#navRail QToolButton:hover { background-color: #2e2a3a; }"
+            "#navRail QToolButton:checked { background-color: #6c4cf0; }");
+
+        auto makeNavButton = [this](const QString& icon) {
+            auto button = new QToolButton(navRail);
+            button->setIcon(QIcon(icon));
+            button->setIconSize(QSize(26, 26));
+            button->setFixedSize(56, 56);
+            button->setFocusPolicy(Qt::NoFocus);
+            button->setCursor(Qt::PointingHandCursor);
+            return button;
+        };
+        navHomeButton = makeNavButton(":/fork_ui/home.svg");
+        navInstancesButton = makeNavButton(":/fork_ui/instances.svg");
+        navAccountsButton = makeNavButton(":/fork_ui/account.svg");
+        navSettingsButton = makeNavButton(":/fork_ui/settings.svg");
+
+        auto pageGroup = new QButtonGroup(navRail);
+        for (auto button : { navHomeButton, navInstancesButton }) {
+            button->setCheckable(true);
+            pageGroup->addButton(button);
+        }
+        connect(navHomeButton, &QToolButton::clicked, this, [this] { showPage(HomePageIndex); });
+        connect(navInstancesButton, &QToolButton::clicked, this, [this] { showPage(InstancesPageIndex); });
+        connect(navAccountsButton, &QToolButton::clicked, ui->actionManageAccounts, &QAction::trigger);
+        connect(navSettingsButton, &QToolButton::clicked, ui->actionSettings, &QAction::trigger);
+
+        auto railLayout = new QVBoxLayout(navRail);
+        railLayout->setContentsMargins(14, 20, 14, 20);
+        railLayout->setSpacing(12);
+        railLayout->addWidget(navHomeButton);
+        railLayout->addWidget(navInstancesButton);
+        railLayout->addWidget(navAccountsButton);
+        railLayout->addStretch(1);
+        railLayout->addWidget(navSettingsButton);
+
+        homePage = new HomePage(ui->centralWidget);
+        connect(homePage, &HomePage::playClicked, this, &MainWindow::launchOrKillSelected);
+        connect(homePage, &HomePage::editClicked, ui->actionEditInstance, &QAction::trigger);
+        connect(homePage, &HomePage::createInstanceClicked, ui->actionAddInstance, &QAction::trigger);
+        connect(homePage, &HomePage::chooseInstanceClicked, this, [this] { showPage(InstancesPageIndex); });
+
+        pages = new QStackedWidget(ui->centralWidget);
+        pages->insertWidget(HomePageIndex, homePage);
+        pages->insertWidget(InstancesPageIndex, view);
+
+        ui->horizontalLayout->addWidget(navRail);
+        ui->horizontalLayout->addWidget(pages, 1);
     }
     // The cat background
     {
@@ -428,8 +531,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     setSelectedInstanceById(APPLICATION->settings()->get("SelectedInstance").toString());
 
-    // removing this looks stupid
-    view->setFocus();
+    showPage(HomePageIndex);
 
     retranslateUi();
 }
@@ -453,6 +555,7 @@ void MainWindow::retranslateUi()
     } else {
         m_statusLeft->setText(tr("No instance selected"));
     }
+    updateStatusCenter();
 
     ui->retranslateUi(this);
 
@@ -464,6 +567,13 @@ void MainWindow::retranslateUi()
 
     changeIconButton->setToolTip(ui->actionChangeInstIcon->toolTip());
     renameButton->setToolTip(ui->actionRenameInstance->toolTip());
+    navHomeButton->setToolTip(tr("Home"));
+    navInstancesButton->setToolTip(tr("Instances"));
+    navAccountsButton->setToolTip(tr("Accounts"));
+    navSettingsButton->setToolTip(tr("Settings"));
+    moreButton->setText(tr("More"));
+    moreButton->setToolTip(tr("Change group, export, copy, create a shortcut or delete the instance."));
+    updatePlayButton();
 
     // replace the %1 with the launcher display name in some actions
     if (helpMenuButton->toolTip().contains("%1"))
@@ -604,6 +714,48 @@ void MainWindow::updateLaunchButton()
     if (m_selectedInstance)
         m_selectedInstance->populateLaunchMenu(launchMenu);
     ui->actionLaunchInstance->setMenu(launchMenu);
+}
+
+void MainWindow::updatePlayButton()
+{
+    const bool running = m_selectedInstance && m_selectedInstance->isRunning();
+    QAction* action = running ? ui->actionKillInstance : ui->actionLaunchInstance;
+
+    playButton->setText(running ? tr("Stop") : tr("Play"));
+    playButton->setIcon(action->icon());
+    playButton->setToolTip(action->toolTip());
+    playButton->setEnabled(action->isEnabled());
+
+    // the drop-down holds the extra launch modes (offline, profilers), which make no sense while running
+    playButton->setMenu(running ? nullptr : ui->actionLaunchInstance->menu());
+    playButton->setPopupMode(running ? QToolButton::DelayedPopup : QToolButton::MenuButtonPopup);
+
+    // re-apply the stylesheet so the [running] selector picks up the new state
+    playButton->setProperty("running", running);
+    playButton->style()->unpolish(playButton);
+    playButton->style()->polish(playButton);
+
+    if (homePage)
+        homePage->setInstance(m_selectedInstance);
+}
+
+void MainWindow::launchOrKillSelected()
+{
+    if (m_selectedInstance && m_selectedInstance->isRunning())
+        ui->actionKillInstance->trigger();
+    else
+        ui->actionLaunchInstance->trigger();
+}
+
+void MainWindow::showPage(int index)
+{
+    pages->setCurrentIndex(index);
+    navHomeButton->setChecked(index == HomePageIndex);
+    navInstancesButton->setChecked(index == InstancesPageIndex);
+    // the instance side panel only makes sense next to the instance grid
+    ui->instanceToolBar->setVisible(index == InstancesPageIndex);
+    if (index == InstancesPageIndex)
+        view->setFocus();
 }
 
 void MainWindow::updateThemeMenu()
@@ -1664,6 +1816,7 @@ void MainWindow::instanceChanged(const QModelIndex& current, [[maybe_unused]] co
         updateInstanceToolIcon(m_selectedInstance->iconKey());
 
         updateLaunchButton();
+        updatePlayButton();
 
         APPLICATION->settings()->set("SelectedInstance", m_selectedInstance->id());
 
@@ -1700,6 +1853,7 @@ void MainWindow::selectionBad()
     ui->instanceToolBar->setEnabled(false);
     setInstanceActionsEnabled(false);
     updateLaunchButton();
+    updatePlayButton();
     renameButton->setText(tr("Rename Instance"));
     updateInstanceToolIcon("grass");
 
@@ -1744,12 +1898,11 @@ void MainWindow::updateStatusCenter()
 {
     m_statusCenter->setVisible(APPLICATION->settings()->get("ShowGlobalGameTime").toBool());
 
+    // always set the text, otherwise a language switch leaves the untranslated "0s" from the constructor
     int timePlayed = APPLICATION->instances()->getTotalPlayTime();
-    if (timePlayed > 0) {
-        m_statusCenter->setText(
-            tr("Total playtime: %1")
-                .arg(Time::prettifyDuration(timePlayed, APPLICATION->settings()->get("ShowGameTimeWithoutDays").toBool())));
-    }
+    m_statusCenter->setText(
+        tr("Total playtime: %1")
+            .arg(Time::prettifyDuration(timePlayed, APPLICATION->settings()->get("ShowGameTimeWithoutDays").toBool())));
 }
 // "Instance actions" are actions that require an instance to be selected (i.e. "new instance" is not here)
 // Actions that also require other conditions (e.g. a running instance) won't be changed.

@@ -1,0 +1,105 @@
+# Russian translations for strings added by this fork.
+# Loaded on top of the regular downloaded translation, so entries here win.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgctxt "MainWindow"
+msgid "Play"
+msgstr "Играть"
+
+msgctxt "MainWindow"
+msgid "Stop"
+msgstr "Остановить"
+
+msgctxt "MainWindow"
+msgid "More"
+msgstr "Ещё"
+
+msgctxt "MainWindow"
+msgid "Change group, export, copy, create a shortcut or delete the instance."
+msgstr "Сменить группу, экспортировать, копировать, создать ярлык или удалить сборку."
+
+msgctxt "MainWindow"
+msgid "Home"
+msgstr "Главная"
+
+msgctxt "MainWindow"
+msgid "Instances"
+msgstr "Сборки"
+
+msgctxt "MainWindow"
+msgid "Accounts"
+msgstr "Аккаунты"
+
+msgctxt "MainWindow"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "HomePage"
+msgid "No instance selected"
+msgstr "Сборка не выбрана"
+
+msgctxt "HomePage"
+msgid "An instance is a separate copy of Minecraft with its own version, mods and worlds. Create a new one or pick an existing instance to start playing."
+msgstr "Сборка — это отдельная копия Minecraft со своей версией, модами и мирами. Создайте новую или выберите существующую, чтобы начать играть."
+
+msgctxt "HomePage"
+msgid "CREATE INSTANCE"
+msgstr "СОЗДАТЬ СБОРКУ"
+
+msgctxt "HomePage"
+msgid "Choose a version and mods"
+msgstr "Выберите версию и моды"
+
+msgctxt "HomePage"
+msgid "Choose instance"
+msgstr "Выбрать сборку"
+
+msgctxt "HomePage"
+msgid "Vanilla"
+msgstr "Без модов"
+
+msgctxt "HomePage"
+msgid "Minecraft %1"
+msgstr "Minecraft %1"
+
+msgctxt "HomePage"
+msgid "Last played: %1\nTotal time played: %2"
+msgstr "Последний запуск: %1\nВсего наиграно: %2"
+
+msgctxt "HomePage"
+msgid "You have not played this instance yet. Press Play to download the game files and start."
+msgstr "Вы ещё не запускали эту сборку. Нажмите «Играть» — лаунчер скачает файлы игры и запустит её."
+
+msgctxt "HomePage"
+msgid "STOP"
+msgstr "ОСТАНОВИТЬ"
+
+msgctxt "HomePage"
+msgid "PLAY"
+msgstr "ИГРАТЬ"
+
+msgctxt "HomePage"
+msgid "PLAY %1"
+msgstr "ИГРАТЬ %1"
+
+msgctxt "HomePage"
+msgid "The game is running"
+msgstr "Игра запущена"
+
+msgctxt "HomePage"
+msgid "Ready to launch"
+msgstr "Готово к запуску"
+
+msgctxt "HomePage"
+msgid "Can't be launched"
+msgstr "Запуск невозможен"
+
+msgctxt "HomePage"
+msgid "Mods and settings"
+msgstr "Моды и настройки"
+
+msgctxt "HomePage"
+msgid "Switch instance"
+msgstr "Сменить сборку"

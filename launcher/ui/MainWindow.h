@@ -55,6 +55,8 @@ class QToolButton;
 class InstanceProxyModel;
 class LabeledToolButton;
 class QLabel;
+class QStackedWidget;
+class HomePage;
 class MinecraftLauncher;
 class BaseProfilerFactory;
 class InstanceView;
@@ -180,6 +182,10 @@ class MainWindow : public QMainWindow {
 
     void updateLaunchButton();
 
+    void updatePlayButton();
+
+    void launchOrKillSelected();
+
     void updateThemeMenu();
 
     void instanceActivated(QModelIndex);
@@ -227,6 +233,9 @@ class MainWindow : public QMainWindow {
     void updateStatusCenter();
     void setInstanceActionsEnabled(bool enabled);
 
+    enum PageIndex { HomePageIndex = 0, InstancesPageIndex = 1 };
+    void showPage(int index);
+
     void runModalTask(Task* task);
     void instanceFromInstanceTask(InstanceTask* task);
 
@@ -240,6 +249,15 @@ class MainWindow : public QMainWindow {
     QLabel* m_statusCenter = nullptr;
     LabeledToolButton* changeIconButton = nullptr;
     LabeledToolButton* renameButton = nullptr;
+    QToolButton* playButton = nullptr;
+    QToolButton* moreButton = nullptr;
+    QWidget* navRail = nullptr;
+    QToolButton* navHomeButton = nullptr;
+    QToolButton* navInstancesButton = nullptr;
+    QToolButton* navAccountsButton = nullptr;
+    QToolButton* navSettingsButton = nullptr;
+    QStackedWidget* pages = nullptr;
+    HomePage* homePage = nullptr;
     QToolButton* helpMenuButton = nullptr;
     KonamiCode* secretEventFilter = nullptr;
 

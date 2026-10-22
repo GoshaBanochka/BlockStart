@@ -37,6 +37,7 @@
 #include "TranslationsModel.h"
 
 #include <QDebug>
+#include <QFile>
 #include <memory>
 #include <utility>
 
@@ -163,6 +164,8 @@ struct TranslationsModel::Private {
     QString m_selectedLanguage = g_defaultLangCode;
     std::unique_ptr<QTranslator> m_qtTranslator;
     std::unique_ptr<QTranslator> m_appTranslator;
+    // strings added by this fork, bundled in resources and installed on top of m_appTranslator
+    std::unique_ptr<QTranslator> m_forkTranslator;
 
     Net::Download* m_indexTask = nullptr;
     QString m_downloadingTranslation;
@@ -461,6 +464,10 @@ bool TranslationsModel::selectLanguage(QString key) const
     }
 
     // uninstall existing translators if there are any
+    if (d->m_forkTranslator) {
+        QCoreApplication::removeTranslator(d->m_forkTranslator.get());
+        d->m_forkTranslator.reset();
+    }
     if (d->m_appTranslator) {
         QCoreApplication::removeTranslator(d->m_appTranslator.get());
         d->m_appTranslator.reset();
@@ -530,6 +537,17 @@ bool TranslationsModel::selectLanguage(QString key) const
     } else {
         d->m_appTranslator.reset();
     }
+
+    // installed last so Qt asks it first
+    const QString forkFile = ":/fork_translations/" + langCode + ".po";
+    if (QFile::exists(forkFile)) {
+        d->m_forkTranslator = std::make_unique<POTranslator>(forkFile);
+        if (d->m_forkTranslator->isEmpty() || !QCoreApplication::installTranslator(d->m_forkTranslator.get())) {
+            qCritical() << "Installing fork language file failed.";
+            d->m_forkTranslator.reset();
+        }
+    }
+
     d->m_selectedLanguage = langCode;
     return successful;
 }

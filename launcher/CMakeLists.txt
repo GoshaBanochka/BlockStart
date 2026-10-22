@@ -1220,6 +1220,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
+    ui/widgets/HomePage.h
+    ui/widgets/HomePage.cpp
     ui/widgets/AppearanceWidget.h
     ui/widgets/AppearanceWidget.cpp
     ui/widgets/MinecraftSettingsWidget.h
@@ -1367,6 +1369,8 @@ qt_add_resources(LAUNCHER_RESOURCES
     resources/flat_white/flat_white.qrc
     resources/documents/documents.qrc
     resources/shaders/shaders.qrc
+    resources/fork_translations/fork_translations.qrc
+    resources/fork_ui/fork_ui.qrc
     "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 )
 

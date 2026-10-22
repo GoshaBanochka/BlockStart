@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/fork_translations">
+        <file>ru.po</file>
+    </qresource>
+</RCC>

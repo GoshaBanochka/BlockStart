@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/fork_ui">
+        <file>home.svg</file>
+        <file>instances.svg</file>
+        <file>account.svg</file>
+        <file>settings.svg</file>
+        <file>play.svg</file>
+        <file>stop.svg</file>
+    </qresource>
+</RCC>
