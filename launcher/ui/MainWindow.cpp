@@ -129,7 +129,9 @@
 #include "modplatform/flame/FlameModIndex.h"
 
 #include "KonamiCode.h"
+#include "ui/widgets/AccountCard.h"
 #include "ui/widgets/HomePage.h"
+#include "ui/widgets/NewsCards.h"
 
 #include "InstanceCopyTask.h"
 #include "InstanceDirUpdate.h"
@@ -429,12 +431,23 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         connect(homePage, &HomePage::createInstanceClicked, ui->actionAddInstance, &QAction::trigger);
         connect(homePage, &HomePage::chooseInstanceClicked, this, [this] { showPage(InstancesPageIndex); });
 
+        homePage->accountCard()->setSwitchMenu(ui->accountsMenu);
+        connect(homePage->accountCard(), &AccountCard::manageClicked, ui->actionManageAccounts, &QAction::trigger);
+        connect(APPLICATION->accounts(), &AccountList::listActivityChanged, this,
+                [this] { homePage->accountCard()->setAccount(APPLICATION->accounts()->defaultAccount()); });
+
+        connect(homePage->newsCards(), &NewsCards::entryClicked, this,
+                [](NewsEntryPtr entry) { DesktopServices::openUrl(QUrl(entry->link)); });
+        connect(homePage->newsCards(), &NewsCards::moreClicked, this, &MainWindow::newsButtonClicked);
+
         pages = new QStackedWidget(ui->centralWidget);
         pages->insertWidget(HomePageIndex, homePage);
         pages->insertWidget(InstancesPageIndex, view);
 
         ui->horizontalLayout->addWidget(navRail);
         ui->horizontalLayout->addWidget(pages, 1);
+
+        updateNewsLabel();
     }
     // The cat background
     {
@@ -754,6 +767,8 @@ void MainWindow::showPage(int index)
     navInstancesButton->setChecked(index == InstancesPageIndex);
     // the instance side panel only makes sense next to the instance grid
     ui->instanceToolBar->setVisible(index == InstancesPageIndex);
+    // the home page shows news as cards, so the bottom news strip would only duplicate them
+    ui->newsToolBar->setVisible(index == InstancesPageIndex);
     if (index == InstancesPageIndex)
         view->setFocus();
 }
@@ -901,6 +916,8 @@ void MainWindow::defaultAccountChanged()
     repopulateAccountsMenu();
 
     MinecraftAccountPtr account = APPLICATION->accounts()->defaultAccount();
+    if (homePage)
+        homePage->accountCard()->setAccount(account);
 
     // FIXME: this needs adjustment for MSA
     if (account && account->profileName() != "") {
@@ -967,6 +984,11 @@ void MainWindow::updateNewsLabel()
             newsLabel->setEnabled(false);
             ui->actionMoreNews->setVisible(false);
         }
+    }
+
+    if (homePage) {
+        homePage->newsCards()->setEntries(m_newsChecker->isLoadingNews() ? QList<NewsEntryPtr>() : m_newsChecker->getNewsEntries());
+        homePage->newsCards()->setLoading(m_newsChecker->isLoadingNews());
     }
 }
 

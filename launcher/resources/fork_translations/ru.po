@@ -103,3 +103,59 @@ msgstr "Моды и настройки"
 msgctxt "HomePage"
 msgid "Switch instance"
 msgstr "Сменить сборку"
+
+msgctxt "AccountCard"
+msgid "Microsoft account"
+msgstr "Аккаунт Microsoft"
+
+msgctxt "AccountCard"
+msgid "Offline account"
+msgstr "Оффлайн-аккаунт"
+
+msgctxt "AccountCard"
+msgid "Ely.by account"
+msgstr "Аккаунт Ely.by"
+
+msgctxt "AccountCard"
+msgid "Custom account"
+msgstr "Сторонний аккаунт"
+
+msgctxt "AccountCard"
+msgid "%1 · in use"
+msgstr "%1 · в игре"
+
+msgctxt "AccountCard"
+msgid "Manage accounts"
+msgstr "Управление аккаунтами"
+
+msgctxt "AccountCard"
+msgid "Switch account"
+msgstr "Сменить аккаунт"
+
+msgctxt "AccountCard"
+msgid "No account"
+msgstr "Нет аккаунта"
+
+msgctxt "AccountCard"
+msgid "Add a Microsoft account to play online"
+msgstr "Добавьте аккаунт Microsoft, чтобы играть онлайн"
+
+msgctxt "AccountCard"
+msgid "Add account"
+msgstr "Добавить аккаунт"
+
+msgctxt "NewsCards"
+msgid "News"
+msgstr "Новости"
+
+msgctxt "NewsCards"
+msgid "All news →"
+msgstr "Все новости →"
+
+msgctxt "NewsCards"
+msgid "Loading news..."
+msgstr "Загрузка новостей..."
+
+msgctxt "NewsCards"
+msgid "No news available."
+msgstr "Новостей нет."

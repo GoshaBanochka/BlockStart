@@ -5,7 +5,9 @@
 #include <QPixmap>
 #include <QWidget>
 
+class AccountCard;
 class BaseInstance;
+class NewsCards;
 class QLabel;
 class QPushButton;
 
@@ -19,6 +21,9 @@ class HomePage : public QWidget {
     void setInstance(BaseInstance* instance);
     // re-read running state, version and notes of the current instance
     void refresh();
+
+    AccountCard* accountCard() const { return m_accountCard; }
+    NewsCards* newsCards() const { return m_newsCards; }
 
    signals:
     void playClicked();
@@ -35,6 +40,8 @@ class HomePage : public QWidget {
     BaseInstance* m_instance = nullptr;
 
     class HeroCard* m_card = nullptr;
+    AccountCard* m_accountCard = nullptr;
+    NewsCards* m_newsCards = nullptr;
     QLabel* m_icon = nullptr;
     QLabel* m_overline = nullptr;
     QLabel* m_title = nullptr;

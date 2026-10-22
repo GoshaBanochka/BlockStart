@@ -14,7 +14,9 @@
 #include <QStyle>
 #include <QVBoxLayout>
 
+#include "AccountCard.h"
 #include "Application.h"
+#include "NewsCards.h"
 #include "BuildConfig.h"
 #include "FileSystem.h"
 #include "settings/SettingsObject.h"
@@ -97,10 +99,20 @@ HomePage::HomePage(QWidget* parent) : QWidget(parent)
     auto outer = new QVBoxLayout(this);
     outer->setContentsMargins(24, 24, 24, 24);
 
+    outer->setSpacing(18);
+
+    auto top = new QHBoxLayout();
+    top->setSpacing(18);
     m_card = new HeroCard(this);
     m_card->setObjectName("heroCard");
     m_card->setMinimumHeight(340);
-    outer->addWidget(m_card, 1);
+    top->addWidget(m_card, 1);
+    m_accountCard = new AccountCard(this);
+    top->addWidget(m_accountCard);
+    outer->addLayout(top, 1);
+
+    m_newsCards = new NewsCards(this);
+    outer->addWidget(m_newsCards);
 
     auto cardLayout = new QVBoxLayout(m_card);
     cardLayout->setContentsMargins(44, 40, 44, 40);
