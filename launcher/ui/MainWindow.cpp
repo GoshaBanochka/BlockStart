@@ -260,6 +260,31 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->actionExportInstance->setMenu(exportInstanceMenu);
     }
 
+    // top bar: dark like the home page, settings live in the navigation rail now,
+    // and creating an instance is the one prominent action
+    {
+        ui->mainToolBar->removeAction(ui->actionSettings);
+        if (auto addButton = ui->mainToolBar->widgetForAction(ui->actionAddInstance))
+            addButton->setObjectName(QStringLiteral("addInstanceButton"));
+        // drop-down buttons need room on the right for their arrow
+        for (auto action : { ui->actionFoldersButton, ui->actionHelpButton, ui->actionAccountsButton })
+            if (auto button = ui->mainToolBar->widgetForAction(action))
+                button->setProperty("hasMenu", true);
+        ui->mainToolBar->setStyleSheet(
+            "QToolBar#mainToolBar { background-color: #17151d; border: none; border-bottom: 1px solid #2a2733; spacing: 6px;"
+            " padding: 6px 10px; }"
+            "QToolBar#mainToolBar QToolButton { color: #d6d1e6; background: transparent; border: none; border-radius: 8px;"
+            " padding: 6px 10px; }"
+            "QToolBar#mainToolBar QToolButton:hover { background-color: #26222f; }"
+            "QToolBar#mainToolBar QToolButton:checked { background-color: #26222f; }"
+            "QToolBar#mainToolBar QToolButton[hasMenu=\"true\"] { padding-right: 24px; }"
+            "QToolBar#mainToolBar QToolButton::menu-indicator { subcontrol-origin: padding; subcontrol-position: right center;"
+            " right: 8px; }"
+            "QToolBar#mainToolBar QToolButton#addInstanceButton { color: white; background-color: #6c4cf0; font-weight: 600;"
+            " padding: 6px 14px; }"
+            "QToolBar#mainToolBar QToolButton#addInstanceButton:hover { background-color: #7d60f5; }");
+    }
+
     // hide, disable and show stuff
     {
         ui->actionReportBug->setVisible(!BuildConfig.BUG_TRACKER_URL.isEmpty());
@@ -767,8 +792,10 @@ void MainWindow::showPage(int index)
     navInstancesButton->setChecked(index == InstancesPageIndex);
     // the instance side panel only makes sense next to the instance grid
     ui->instanceToolBar->setVisible(index == InstancesPageIndex);
-    // the home page shows news as cards, so the bottom news strip would only duplicate them
+    // the home page shows news as cards and the instance details on its card,
+    // so the bottom news strip and the status bar would only duplicate them
     ui->newsToolBar->setVisible(index == InstancesPageIndex);
+    statusBar()->setVisible(index == InstancesPageIndex && APPLICATION->settings()->get("StatusBarVisible").toBool());
     if (index == InstancesPageIndex)
         view->setFocus();
 }

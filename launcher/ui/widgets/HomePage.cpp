@@ -95,6 +95,7 @@ QString loaderName(PackProfile* profile, QString& version)
 HomePage::HomePage(QWidget* parent) : QWidget(parent)
 {
     setObjectName("homePage");
+    setAttribute(Qt::WA_StyledBackground);
 
     auto outer = new QVBoxLayout(this);
     outer->setContentsMargins(24, 24, 24, 24);
@@ -201,6 +202,7 @@ HomePage::HomePage(QWidget* parent) : QWidget(parent)
     connect(m_switchButton, &QPushButton::clicked, this, &HomePage::chooseInstanceClicked);
 
     setStyleSheet(
+        "#homePage { background-color: #121018; }"
         "#heroOverline { color: rgba(255,255,255,65%); font-size: 14px; font-weight: 600; }"
         "#heroTitle { color: white; font-size: 34px; font-weight: 800; }"
         "#heroBadge { color: white; background-color: #3c8527; border-radius: 9px; padding: 3px 14px;"

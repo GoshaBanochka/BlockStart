@@ -159,3 +159,24 @@ msgstr "Загрузка новостей..."
 msgctxt "NewsCards"
 msgid "No news available."
 msgstr "Новостей нет."
+
+# Wording overrides: the fork calls instances "сборки" everywhere in the main window
+msgctxt "MainWindow"
+msgid "Add Instanc&e..."
+msgstr "&Новая сборка..."
+
+msgctxt "MainWindow"
+msgid "Add a new instance."
+msgstr "Создать новую сборку."
+
+msgctxt "MainWindow"
+msgid "No instance selected"
+msgstr "Сборка не выбрана"
+
+msgctxt "MainWindow"
+msgid "Rename Instance"
+msgstr "Переименовать сборку"
+
+msgctxt "MainWindow"
+msgid "&Create instance"
+msgstr "&Создать сборку"
