@@ -336,8 +336,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     setOrganizationName(BuildConfig.LAUNCHER_NAME);
     setOrganizationDomain(BuildConfig.LAUNCHER_DOMAIN);
     setApplicationName(BuildConfig.LAUNCHER_NAME);
-    setApplicationDisplayName(
-        QString("%1 %2 %3").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.VERSION_CODENAME, BuildConfig.printableVersionString()));
+    // the codename is optional, skip it so the title has no double space
+    QStringList displayName{ BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.VERSION_CODENAME, BuildConfig.printableVersionString() };
+    displayName.removeAll(QString());
+    setApplicationDisplayName(displayName.join(' '));
     setApplicationVersion(BuildConfig.printableVersionString() + "\n" + BuildConfig.GIT_COMMIT);
     setDesktopFileName(BuildConfig.LAUNCHER_APPID);
     m_startTime = QDateTime::currentDateTime();

@@ -1,5 +1,5 @@
 # Portable Windows release build via MSYS2 (clang64).
-# Usage: .\release-build.ps1   ->  dist\FreesmLauncher-portable\freesmlauncher.exe and dist\FreesmLauncher-portable.zip
+# Usage: .\release-build.ps1   ->  dist\BlockStart\BlockStart.exe and dist\BlockStart-<version>-windows-portable.zip
 
 # Not "Stop": PowerShell 5.1 turns native stderr (e.g. CMake warnings) into errors; we check $LASTEXITCODE instead
 $ErrorActionPreference = "Continue"
