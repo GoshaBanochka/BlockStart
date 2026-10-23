@@ -16,7 +16,6 @@
 
 #include "AccountCard.h"
 #include "Application.h"
-#include "NewsCards.h"
 #include "BuildConfig.h"
 #include "FileSystem.h"
 #include "settings/SettingsObject.h"
@@ -111,9 +110,6 @@ HomePage::HomePage(QWidget* parent) : QWidget(parent)
     m_accountCard = new AccountCard(this);
     top->addWidget(m_accountCard);
     outer->addLayout(top, 1);
-
-    m_newsCards = new NewsCards(this);
-    outer->addWidget(m_newsCards);
 
     auto cardLayout = new QVBoxLayout(m_card);
     cardLayout->setContentsMargins(44, 40, 44, 40);

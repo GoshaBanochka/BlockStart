@@ -320,7 +320,8 @@ void ThemeManager::initializeCatPacks()
         addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
     }
 
-    QList<std::pair<QString, QString>> freesmCats{ { "typescript", QObject::tr("You should have used Typescript") },
+    QList<std::pair<QString, QString>> freesmCats{ { "blockstart-night", QObject::tr("BlockStart: night over the blocks") },
+                                                   { "typescript", QObject::tr("You should have used Typescript") },
                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
                                                    { "konata-gif", QObject::tr("Low-poly Konata") },

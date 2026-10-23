@@ -144,22 +144,6 @@ msgctxt "AccountCard"
 msgid "Add account"
 msgstr "Добавить аккаунт"
 
-msgctxt "NewsCards"
-msgid "News"
-msgstr "Новости"
-
-msgctxt "NewsCards"
-msgid "All news →"
-msgstr "Все новости →"
-
-msgctxt "NewsCards"
-msgid "Loading news..."
-msgstr "Загрузка новостей..."
-
-msgctxt "NewsCards"
-msgid "No news available."
-msgstr "Новостей нет."
-
 # Wording overrides: the fork calls instances "сборки" everywhere in the main window
 msgctxt "MainWindow"
 msgid "Add Instanc&e..."
@@ -180,3 +164,7 @@ msgstr "Переименовать сборку"
 msgctxt "MainWindow"
 msgid "&Create instance"
 msgstr "&Создать сборку"
+
+msgctxt "QObject"
+msgid "BlockStart: night over the blocks"
+msgstr "BlockStart: ночь над блоками"

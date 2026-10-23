@@ -131,7 +131,6 @@
 #include "KonamiCode.h"
 #include "ui/widgets/AccountCard.h"
 #include "ui/widgets/HomePage.h"
-#include "ui/widgets/NewsCards.h"
 
 #include "InstanceCopyTask.h"
 #include "InstanceDirUpdate.h"
@@ -232,7 +231,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
         ui->instanceToolBar->setVisibilityState(QByteArray::fromBase64(instanceToolbarSetting->get().toString().toUtf8()));
 
-        ui->instanceToolBar->addContextMenuAction(ui->newsToolBar->toggleViewAction());
         ui->instanceToolBar->addContextMenuAction(ui->instanceToolBar->toggleViewAction());
         ui->instanceToolBar->addContextMenuAction(ui->actionToggleStatusBar);
         ui->instanceToolBar->addContextMenuAction(ui->actionLockToolbars);
@@ -318,7 +316,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // add the toolbar toggles to the view menu
     ui->viewMenu->addAction(ui->instanceToolBar->toggleViewAction());
-    ui->viewMenu->addAction(ui->newsToolBar->toggleViewAction());
 
     updateThemeMenu();
     updateMainToolBar();
@@ -355,6 +352,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         newsLabel->setFocusPolicy(Qt::NoFocus);
         ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
+        // BlockStart shows no news strip; news stay reachable from the Help menu
+        removeToolBar(ui->newsToolBar);
 
         connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
         connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
@@ -461,18 +460,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         connect(APPLICATION->accounts(), &AccountList::listActivityChanged, this,
                 [this] { homePage->accountCard()->setAccount(APPLICATION->accounts()->defaultAccount()); });
 
-        connect(homePage->newsCards(), &NewsCards::entryClicked, this,
-                [](NewsEntryPtr entry) { DesktopServices::openUrl(QUrl(entry->link)); });
-        connect(homePage->newsCards(), &NewsCards::moreClicked, this, &MainWindow::newsButtonClicked);
-
         pages = new QStackedWidget(ui->centralWidget);
         pages->insertWidget(HomePageIndex, homePage);
         pages->insertWidget(InstancesPageIndex, view);
 
         ui->horizontalLayout->addWidget(navRail);
         ui->horizontalLayout->addWidget(pages, 1);
-
-        updateNewsLabel();
     }
     // The cat background
     {
@@ -792,9 +785,7 @@ void MainWindow::showPage(int index)
     navInstancesButton->setChecked(index == InstancesPageIndex);
     // the instance side panel only makes sense next to the instance grid
     ui->instanceToolBar->setVisible(index == InstancesPageIndex);
-    // the home page shows news as cards and the instance details on its card,
-    // so the bottom news strip and the status bar would only duplicate them
-    ui->newsToolBar->setVisible(index == InstancesPageIndex);
+    // the home card already shows the instance details, so the status bar would only duplicate them
     statusBar()->setVisible(index == InstancesPageIndex && APPLICATION->settings()->get("StatusBarVisible").toBool());
     if (index == InstancesPageIndex)
         view->setFocus();
@@ -1011,11 +1002,6 @@ void MainWindow::updateNewsLabel()
             newsLabel->setEnabled(false);
             ui->actionMoreNews->setVisible(false);
         }
-    }
-
-    if (homePage) {
-        homePage->newsCards()->setEntries(m_newsChecker->isLoadingNews() ? QList<NewsEntryPtr>() : m_newsChecker->getNewsEntries());
-        homePage->newsCards()->setLoading(m_newsChecker->isLoadingNews());
     }
 }
 

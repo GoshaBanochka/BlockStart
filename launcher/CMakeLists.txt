@@ -1224,8 +1224,6 @@ SET(LAUNCHER_SOURCES
     ui/widgets/HomePage.cpp
     ui/widgets/AccountCard.h
     ui/widgets/AccountCard.cpp
-    ui/widgets/NewsCards.h
-    ui/widgets/NewsCards.cpp
     ui/widgets/AppearanceWidget.h
     ui/widgets/AppearanceWidget.cpp
     ui/widgets/MinecraftSettingsWidget.h
